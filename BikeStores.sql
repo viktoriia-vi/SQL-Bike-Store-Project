@@ -125,3 +125,28 @@ UNION
 SELECT COUNT(multiple.customer_id)
 FROM multiple;
 
+
+-- Find the top 5 best-selling products (by quantity) across all stores. 
+-- Include the product name, brand name, and total quantity sold.
+SELECT TOP 5 p.product_name, b.brand_name, SUM(oi.quantity) AS total_quantity_sold
+FROM products AS p
+LEFT JOIN brands AS b
+ON p.brand_id = b.brand_id
+LEFT JOIN order_items AS oi
+ON p.product_id = oi.product_id
+GROUP BY p.product_name, b.brand_name
+ORDER BY total_quantity_sold DESC;
+
+
+--Which sales reps sold the most and which sold the least?
+SELECT s.first_name, s.last_name, SUM(oi.quantity) AS total_quntity_sold,
+SUM(oi.quantity * (oi.list_price * oi.discount)) AS total_sales_$,
+RANK() OVER(ORDER BY SUM(oi.quantity) DESC) AS quantity_rank,
+RANK() OVER(ORDER BY SUM(oi.list_price * oi.discount) DESC) AS sales_rank
+FROM staffs AS s
+LEFT JOIN orders AS o
+ON s.staff_id = o.staff_id
+LEFT JOIN order_items AS oi
+ON o.order_id = oi.order_id
+GROUP BY s.first_name, s.last_name;
+
